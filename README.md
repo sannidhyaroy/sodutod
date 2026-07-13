@@ -59,7 +59,9 @@
 - [ ] `/report` — file structured GitHub issues from bug-report forum posts
 
 ### Telemetry
-- [x] Operational events (verifications, announcements, misconfigurations) posted to the telemetry channel
+- [x] Significant events (verifications, release announcements, rules refreshes, misconfigurations) posted to the telemetry channel
+- [x] Verbose audit trail (`TELEMETRY_LEVEL=verbose`, the default): every join, role assignment, welcome DM, and welcome-roster create/edit/delete is mirrored to the telemetry channel, so the bot's behavior can be verified without shell access
+- [x] Everything is always written to the process log (stdout) regardless of telemetry level
 
 ### Housekeeping
 - [ ] Promotion commands with an audit trail
@@ -116,6 +118,7 @@ cp .env.example .env
 | `STATE_DIR`            | No       | Where the bot keeps its small state files (default: `./data`)                                                 |
 | `RULES_PATH`           | No       | Markdown file posted by `/post-rules` (default: `./rules.md`)                                                 |
 | `WELCOME_MODE`         | No       | `roster` (default), `dm`, `public`, or `off`                                                                  |
+| `TELEMETRY_LEVEL`      | No       | `verbose` (default) mirrors every bot action to the telemetry channel; `normal` posts only significant events |
 
 <details><summary>Where do I find these IDs? 👀</summary>
 

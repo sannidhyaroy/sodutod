@@ -55,6 +55,12 @@ class Config:
     # "public" (one embed per join), or "off".
     welcome_mode: str
 
+    # Telemetry verbosity: "verbose" (default) mirrors every bot action to
+    # the telemetry channel (joins, roster updates, DMs); "normal" posts
+    # only significant events (verifications, announcements,
+    # misconfigurations). Verbose events go to the process log either way.
+    telemetry_level: str
+
     @classmethod
     def from_env(cls) -> "Config":
         welcome_mode = os.environ.get("WELCOME_MODE", "roster").strip().lower()
@@ -62,6 +68,11 @@ class Config:
             raise RuntimeError(
                 "WELCOME_MODE must be 'roster', 'dm', 'public' or 'off', "
                 f"got {welcome_mode!r}"
+            )
+        telemetry_level = os.environ.get("TELEMETRY_LEVEL", "verbose").strip().lower()
+        if telemetry_level not in ("verbose", "normal"):
+            raise RuntimeError(
+                f"TELEMETRY_LEVEL must be 'verbose' or 'normal', got {telemetry_level!r}"
             )
         return cls(
             token=_env("DISCORD_TOKEN"),
@@ -78,4 +89,5 @@ class Config:
             state_dir=os.environ.get("STATE_DIR", "./data"),
             rules_path=os.environ.get("RULES_PATH", "./rules.md"),
             welcome_mode=welcome_mode,
+            telemetry_level=telemetry_level,
         )

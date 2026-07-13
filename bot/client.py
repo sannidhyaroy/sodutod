@@ -41,8 +41,15 @@ class Sodutod(commands.Bot):
         assert self.user is not None
         log.info("Logged in as %s (%s)", self.user, self.user.id)
 
-    async def telemetry(self, message: str) -> None:
-        """Post an operational event to the telemetry channel. Best effort."""
+    async def telemetry(self, message: str, *, verbose: bool = False) -> None:
+        """Post an operational event to the telemetry channel. Best effort.
+
+        Events marked ``verbose`` are only posted to Discord when
+        ``TELEMETRY_LEVEL=verbose``; they go to the process log regardless.
+        """
+        log.info("telemetry: %s", message)
+        if verbose and self.config.telemetry_level != "verbose":
+            return
         try:
             channel = self.get_channel(self.config.channel_telemetry_id)
             if channel is None:

@@ -111,6 +111,11 @@ class GitHubCog(commands.Cog, name="GitHub"):
         if first_run:
             state["seeded"] = True
             self._save_state(state)
+            await self.bot.telemetry(
+                f"📦 First run — recorded {len(releases)} existing releases of "
+                f"`{self.config.github_repo}` without announcing; only releases "
+                "published from now on are announced."
+            )
 
     @poll_releases.before_loop
     async def _wait_for_ready(self) -> None:

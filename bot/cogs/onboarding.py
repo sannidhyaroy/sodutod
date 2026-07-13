@@ -142,8 +142,16 @@ class OnboardingCog(commands.Cog, name="Onboarding"):
         if unverified is not None and unverified not in member.roles:
             try:
                 await member.add_roles(unverified, reason="new arrival")
+                await self.bot.telemetry(
+                    f"📥 {member.mention} joined — assigned **{unverified.name}**",
+                    verbose=True,
+                )
             except discord.Forbidden:
                 log.warning("Missing permissions to assign join role to %s", member)
+                await self.bot.telemetry(
+                    f"⚠️ Couldn't assign **{unverified.name}** to {member.mention} — "
+                    "check my role position and permissions."
+                )
 
         mode = self.config.welcome_mode
         if mode == "off":
@@ -174,11 +182,19 @@ class OnboardingCog(commands.Cog, name="Onboarding"):
             )
             try:
                 await member.send(embed=embed)
+                await self.bot.telemetry(
+                    f"✉️ Sent welcome DM to {member.mention}", verbose=True
+                )
             except discord.Forbidden:
                 # Member has server DMs disabled; they'll find the rules
                 # channel on their own since it's one of the few channels
                 # visible before verification.
                 log.info("Cannot DM %s; skipping welcome", member)
+                await self.bot.telemetry(
+                    f"✉️ Couldn't DM {member.mention} (server DMs disabled) — "
+                    "skipped the welcome",
+                    verbose=True,
+                )
             return
 
         # mode == "public"
@@ -197,8 +213,16 @@ class OnboardingCog(commands.Cog, name="Onboarding"):
         embed.set_thumbnail(url=member.display_avatar.url)
         try:
             await channel.send(embed=embed)
+            await self.bot.telemetry(
+                f"📣 Posted welcome embed for {member.mention} in {channel.mention}",
+                verbose=True,
+            )
         except discord.Forbidden:
             log.warning("Cannot send welcome message in the welcome channel")
+            await self.bot.telemetry(
+                f"⚠️ Couldn't post the welcome embed in {channel.mention} — "
+                "check my channel overrides."
+            )
 
     async def _refresh_roster(
         self, guild: discord.Guild, ping: discord.Member | None = None
@@ -241,6 +265,10 @@ class OnboardingCog(commands.Cog, name="Onboarding"):
             if old_message is not None:
                 try:
                     await old_message.delete()
+                    await self.bot.telemetry(
+                        "📋 Deleted the welcome roster — nobody pending",
+                        verbose=True,
+                    )
                 except discord.DiscordException:
                     log.warning("Couldn't delete welcome message %s", old_id)
             state["welcome_message_id"] = None
@@ -272,8 +300,17 @@ class OnboardingCog(commands.Cog, name="Onboarding"):
                     ),
                 )
                 state["welcome_message_id"] = message.id
+                await self.bot.telemetry(
+                    f"📋 Reposted the welcome roster for {ping.mention} — "
+                    f"{len(pending)} pending",
+                    verbose=True,
+                )
             elif old_message is not None:
                 await old_message.edit(content=mentions, embed=embed)
+                await self.bot.telemetry(
+                    f"📋 Edited the welcome roster — {len(pending)} pending",
+                    verbose=True,
+                )
             else:
                 message = await channel.send(
                     content=mentions,
@@ -281,8 +318,16 @@ class OnboardingCog(commands.Cog, name="Onboarding"):
                     allowed_mentions=discord.AllowedMentions.none(),
                 )
                 state["welcome_message_id"] = message.id
+                await self.bot.telemetry(
+                    f"📋 Recreated the welcome roster — {len(pending)} pending",
+                    verbose=True,
+                )
         except discord.Forbidden:
             log.warning("Cannot post in the welcome channel")
+            await self.bot.telemetry(
+                f"⚠️ Couldn't maintain the welcome roster in {channel.mention} — "
+                "check my channel overrides."
+            )
             return
         self._save_state(state)
 
@@ -306,6 +351,11 @@ class OnboardingCog(commands.Cog, name="Onboarding"):
             return
         state["pending_ids"].remove(member.id)
         self._save_state(state)
+        await self.bot.telemetry(
+            f"📤 **{member.display_name}** left before initializing — "
+            "removed from the welcome roster",
+            verbose=True,
+        )
         await self._refresh_roster(member.guild)
 
     @commands.Cog.listener()
@@ -391,4 +441,8 @@ class OnboardingCog(commands.Cog, name="Onboarding"):
         await interaction.followup.send(
             f"Rules and Initialize button posted in {channel.mention}.",
             ephemeral=True,
+        )
+        await self.bot.telemetry(
+            f"📜 {interaction.user.mention} refreshed the rules post in "
+            f"{channel.mention}"
         )
