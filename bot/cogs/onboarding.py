@@ -391,6 +391,7 @@ class OnboardingCog(commands.Cog, name="Onboarding"):
         description="Post (or refresh) the rules and the Initialize button in the rules channel.",
     )
     @app_commands.default_permissions(manage_guild=True)
+    @app_commands.guild_only()
     async def post_rules(self, interaction: discord.Interaction) -> None:
         guild = interaction.guild
         channel = guild.get_channel(self.config.channel_rules_id) if guild else None
