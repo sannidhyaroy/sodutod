@@ -387,6 +387,51 @@ class OnboardingCog(commands.Cog, name="Onboarding"):
             await self._onboard(after)
 
     @app_commands.command(
+        name="invite",
+        description="Get the server's canonical invite link.",
+    )
+    @app_commands.guild_only()
+    async def invite(self, interaction: discord.Interaction) -> None:
+        guild = interaction.guild
+        assert guild is not None
+        state = self._load_state()
+        url = state.get("invite_url")
+
+        if url is not None:
+            try:
+                await self.bot.fetch_invite(url)
+            except discord.NotFound:
+                url = None  # revoked server-side; mint a fresh one
+            except discord.DiscordException:
+                pass  # transient API trouble; serve the stored URL as-is
+
+        if url is None:
+            channel = guild.get_channel(self.config.channel_welcome_id)
+            if not isinstance(channel, discord.TextChannel):
+                await interaction.response.send_message(
+                    "Welcome channel not found — check `CHANNEL_WELCOME_ID`.",
+                    ephemeral=True,
+                )
+                return
+            try:
+                created = await channel.create_invite(
+                    max_age=0, max_uses=0, reason="canonical server invite"
+                )
+            except discord.Forbidden:
+                await interaction.response.send_message(
+                    "I need the **Create Invite** permission in the welcome "
+                    "channel to mint the server invite.",
+                    ephemeral=True,
+                )
+                return
+            url = created.url
+            state["invite_url"] = url
+            self._save_state(state)
+            await self.bot.telemetry(f"🔗 Minted the canonical server invite: {url}")
+
+        await interaction.response.send_message(url, ephemeral=True)
+
+    @app_commands.command(
         name="post-rules",
         description="Post (or refresh) the rules and the Initialize button in the rules channel.",
     )

@@ -45,6 +45,7 @@
 - [x] Welcome roster: a single self-maintaining welcome message mentioning everyone not yet verified — reposted on join (pinging only the newcomer), silently edited as members verify or leave, deleted once nobody is pending
 - [x] Alternate welcome modes: personal DM, one embed per join, or off (`WELCOME_MODE`)
 - [x] Roster reconciliation after downtime (members who verified or left while the bot was offline are pruned on startup)
+- [x] `/invite` — the canonical never-expiring server invite, minted and owned by the bot (so joins credit sodutod as the inviter); re-minted automatically if revoked. Needs the *Create Invite* permission in the welcome channel
 
 ### Verification
 - [x] `/post-rules` posts the server rules (from [`rules.md`](rules.md)) plus a persistent **Initialize** button into the rules channel — rerun it after editing the rules and the old post is replaced cleanly
