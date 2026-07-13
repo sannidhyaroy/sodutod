@@ -61,6 +61,14 @@ class Config:
     # misconfigurations). Verbose events go to the process log either way.
     telemetry_level: str
 
+    # Presence shown on the bot's profile. activity_type is one of
+    # "playing", "streaming", "listening", "watching", "competing" or
+    # "custom"; activity_url is only used for "streaming" (must be a
+    # Twitch/YouTube URL for Discord to show the purple streaming status).
+    activity_type: str
+    activity_text: str
+    activity_url: str | None
+
     @classmethod
     def from_env(cls) -> "Config":
         welcome_mode = os.environ.get("WELCOME_MODE", "roster").strip().lower()
@@ -73,6 +81,14 @@ class Config:
         if telemetry_level not in ("verbose", "normal"):
             raise RuntimeError(
                 f"TELEMETRY_LEVEL must be 'verbose' or 'normal', got {telemetry_level!r}"
+            )
+        activity_type = os.environ.get("ACTIVITY_TYPE", "listening").strip().lower()
+        if activity_type not in (
+            "playing", "streaming", "listening", "watching", "competing", "custom"
+        ):
+            raise RuntimeError(
+                "ACTIVITY_TYPE must be one of playing, streaming, listening, "
+                f"watching, competing, custom — got {activity_type!r}"
             )
         return cls(
             token=_env("DISCORD_TOKEN"),
@@ -90,4 +106,7 @@ class Config:
             rules_path=os.environ.get("RULES_PATH", "./rules.md"),
             welcome_mode=welcome_mode,
             telemetry_level=telemetry_level,
+            activity_type=activity_type,
+            activity_text=os.environ.get("ACTIVITY_TEXT", "port 1716").strip(),
+            activity_url=os.environ.get("ACTIVITY_URL", "").strip() or None,
         )

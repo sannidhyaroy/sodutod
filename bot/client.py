@@ -11,13 +11,33 @@ from .config import Config
 log = logging.getLogger(__name__)
 
 
+def _build_activity(config: Config) -> discord.BaseActivity | None:
+    if not config.activity_text:
+        return None
+    if config.activity_type == "streaming":
+        return discord.Streaming(
+            name=config.activity_text,
+            url=config.activity_url or "https://www.twitch.tv/directory",
+        )
+    if config.activity_type == "custom":
+        return discord.CustomActivity(name=config.activity_text)
+    return discord.Activity(
+        type=getattr(discord.ActivityType, config.activity_type),
+        name=config.activity_text,
+    )
+
+
 class Sodutod(commands.Bot):
     """Onboarding, verification, and GitHub relay for the home server."""
 
     def __init__(self, config: Config) -> None:
         intents = discord.Intents.default()
         intents.members = True  # required for on_member_join and role management
-        super().__init__(command_prefix=commands.when_mentioned, intents=intents)
+        super().__init__(
+            command_prefix=commands.when_mentioned,
+            intents=intents,
+            activity=_build_activity(config),
+        )
         self.config = config
 
     async def setup_hook(self) -> None:
@@ -31,11 +51,17 @@ class Sodutod(commands.Bot):
         # across restarts.
         self.add_view(VerifyView(self))
 
-        # Guild-scoped command sync: commands appear instantly instead of the
-        # up-to-1-hour global propagation delay.
+        # Global command sync: guild-scoped commands would appear instantly,
+        # but only globally synced commands light up the {/} "supports
+        # commands" badge and the Commands list on the bot's profile.
+        # Propagation after changes can take up to an hour, which is fine
+        # for a single-guild bot with a stable command set. The guild sync
+        # with cleared commands removes stale guild-scoped copies from
+        # earlier versions that would otherwise duplicate every command.
         guild = discord.Object(id=self.config.guild_id)
-        self.tree.copy_global_to(guild=guild)
+        self.tree.clear_commands(guild=guild)
         await self.tree.sync(guild=guild)
+        await self.tree.sync()
 
     async def on_ready(self) -> None:
         assert self.user is not None

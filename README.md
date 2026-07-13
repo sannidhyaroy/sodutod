@@ -119,6 +119,9 @@ cp .env.example .env
 | `RULES_PATH`           | No       | Markdown file posted by `/post-rules` (default: `./rules.md`)                                                 |
 | `WELCOME_MODE`         | No       | `roster` (default), `dm`, `public`, or `off`                                                                  |
 | `TELEMETRY_LEVEL`      | No       | `verbose` (default) mirrors every bot action to the telemetry channel; `normal` posts only significant events |
+| `ACTIVITY_TYPE`        | No       | Profile presence type: `playing`, `streaming`, `listening` (default), `watching`, `competing`, or `custom`    |
+| `ACTIVITY_TEXT`        | No       | Presence text (default: `port 1716` — shown as "Listening to port 1716")                                      |
+| `ACTIVITY_URL`         | No       | Only for `streaming` — a Twitch/YouTube URL, required for the purple streaming status                         |
 
 <details><summary>Where do I find these IDs? 👀</summary>
 
