@@ -9,9 +9,10 @@
   <a href="https://github.com/sannidhyaroy/sodutod/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/sannidhyaroy/sodutod?color=B0BB88&style=flat-square"></a>
   <a href="https://github.com/sannidhyaroy/sodutod/commits/main"><img src="https://img.shields.io/github/last-commit/sannidhyaroy/sodutod/main?color=B0BB88&style=flat-square" alt="Last Commit"></a>
   <a href="https://github.com/sannidhyaroy/sodutod/actions/workflows/docker.yml"><img alt="Docker Build" src="https://img.shields.io/github/actions/workflow/status/sannidhyaroy/sodutod/docker.yml?branch=main&color=B0BB88&style=flat-square&label=docker"></a>
+  <a href="https://discord.gg/CEWxVVNHAe"><img alt="Soduto Labs Discord" src="https://img.shields.io/badge/discord-soduto%20labs-B0BB88?style=flat-square&logo=discord&logoColor=white"></a>
   </div>
   <p>
-  sodutod is the house bot of <b>Soduto Labs</b>, the community server for <a href="https://github.com/sannidhyaroy/Soduto">Soduto</a> — a KDE Connect compatible application for macOS. It onboards new members, runs the verification gate that unlocks the server, and relays GitHub activity into Discord.
+  sodutod is the house bot of <a href="https://discord.gg/CEWxVVNHAe"><b>Soduto Labs</b></a>, the community server for <a href="https://github.com/sannidhyaroy/Soduto">Soduto</a> — a KDE Connect compatible application for macOS. It onboards new members, runs the verification gate that unlocks the server, and relays GitHub activity into Discord.
   </p>
 </div>
 
@@ -80,9 +81,9 @@
   - Enable **Server Members Intent** (required for join events and role management). Message Content intent is *not* needed.
 - Invite the bot with this URL (replace `CLIENT_ID` with the app's Application ID):
   ```
-  https://discord.com/api/oauth2/authorize?client_id=CLIENT_ID&scope=bot%20applications.commands&permissions=268520448
+  https://discord.com/oauth2/authorize?client_id=CLIENT_ID&permissions=7603655781895233&integration_type=0&scope=bot+applications.commands
   ```
-  That permission set is: Manage Roles, View Channels, Send Messages, Embed Links, Read Message History.
+  That permission set covers current and planned features: core messaging (View Channels, Send Messages, Embed Links, Attach Files, Add Reactions, Read Message History), roles and members (Manage Roles, Moderate Members), invites (Create Instant Invite), forum/thread tooling (Create Public/Private Threads, Send Messages in Threads, Manage Threads, Pin Messages), community utilities (Mention Everyone, External Emojis/Stickers, Create Polls, Bypass Slowmode, Server Insights), and voice moderation (Connect, Mute/Deafen/Move Members, Set Voice Channel Status).
 
 > [!NOTE]
 > Name the application before inviting it — the managed role Discord creates takes the bot's name and can't be renamed afterwards.
