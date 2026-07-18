@@ -11,6 +11,19 @@ services:
     restart: unless-stopped
     volumes:
       - bot-data:/data
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  # Auto-update: checks ghcr once a day and recreates the bot when a new
+  # image is published. Label-scoped so it never touches other stacks.
+  watchtower:
+    image: containrrr/watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # If the ghcr package is private, also mount registry credentials:
+      # - ~/.docker/config.json:/config.json:ro
+    command: --label-enable --cleanup --interval 86400
 
 volumes:
   bot-data:

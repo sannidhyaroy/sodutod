@@ -155,7 +155,7 @@ docker compose up -d     # pulls ghcr.io/sannidhyaroy/sodutod:latest
 docker compose logs -f   # watch it come up
 ```
 
-To update to the latest image:
+Updates are automatic: a label-scoped [Watchtower](https://containrrr.dev/watchtower/) service in the same compose stack checks ghcr once a day, recreates the bot when a new image was published, and prunes the old image. Each build carries its commit SHA, so the bot announces every update in the telemetry channel with a compare link of what shipped. To update immediately instead of waiting for the daily check:
 
 ```bash
 docker compose pull && docker compose up -d
