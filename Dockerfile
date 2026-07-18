@@ -10,6 +10,10 @@ RUN uv sync --frozen --no-dev
 COPY bot/ bot/
 COPY main.py rules.md ./
 
+# Baked in by CI so the bot knows which build it is running.
+ARG GIT_SHA=dev
+ENV BOT_GIT_SHA=$GIT_SHA
+
 VOLUME /data
 
 CMD ["uv", "run", "--no-sync", "main.py"]

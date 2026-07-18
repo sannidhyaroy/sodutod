@@ -1,6 +1,8 @@
 """Bot client and entry point."""
 
+import json
 import logging
+from pathlib import Path
 
 import discord
 from discord.ext import commands
@@ -39,6 +41,7 @@ class Sodutod(commands.Bot):
             activity=_build_activity(config),
         )
         self.config = config
+        self._version_announced = False
 
     async def setup_hook(self) -> None:
         from .cogs.github import GitHubCog
@@ -66,6 +69,53 @@ class Sodutod(commands.Bot):
     async def on_ready(self) -> None:
         assert self.user is not None
         log.info("Logged in as %s (%s)", self.user, self.user.id)
+        # on_ready also fires on gateway reconnects; announce only once per
+        # process.
+        if not self._version_announced:
+            self._version_announced = True
+            await self._announce_version()
+
+    @staticmethod
+    def _short(sha: str) -> str:
+        return sha if sha == "dev" else sha[:7]
+
+    async def _announce_version(self) -> None:
+        """Report which build is running, and whether it changed.
+
+        The running build's commit SHA (baked into the image by CI) is
+        compared against the one recorded in the state volume: an update
+        announces old -> new with a compare link, a restart of the same
+        build is a verbose-level event.
+        """
+        sha = self.config.git_sha
+        path = Path(self.config.state_dir) / "version_state.json"
+        previous = None
+        try:
+            previous = json.loads(path.read_text()).get("git_sha")
+        except (OSError, ValueError):
+            pass
+
+        if previous == sha:
+            await self.telemetry(
+                f"🔄 Restarted — still running build `{self._short(sha)}`",
+                verbose=True,
+            )
+            return
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"git_sha": sha}))
+        if previous is None:
+            await self.telemetry(f"🚀 Running build `{self._short(sha)}`")
+        elif "dev" in (sha, previous):
+            await self.telemetry(
+                f"⬆️ Updated: `{self._short(previous)}` → `{self._short(sha)}`"
+            )
+        else:
+            await self.telemetry(
+                f"⬆️ Updated: `{self._short(previous)}` → `{self._short(sha)}` — "
+                f"<https://github.com/{self.config.bot_source_repo}/compare/"
+                f"{previous}...{sha}>"
+            )
 
     async def telemetry(self, message: str, *, verbose: bool = False) -> None:
         """Post an operational event to the telemetry channel. Best effort.

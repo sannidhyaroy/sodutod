@@ -69,6 +69,13 @@ class Config:
     activity_text: str
     activity_url: str | None
 
+    # Commit SHA of the running build, baked into the Docker image by CI
+    # (BOT_GIT_SHA); "dev" for local runs. Used for the startup update
+    # announcement in the telemetry channel.
+    git_sha: str
+    # Repo the bot's own source lives in, for compare links between builds.
+    bot_source_repo: str
+
     @classmethod
     def from_env(cls) -> "Config":
         welcome_mode = os.environ.get("WELCOME_MODE", "roster").strip().lower()
@@ -109,4 +116,8 @@ class Config:
             activity_type=activity_type,
             activity_text=os.environ.get("ACTIVITY_TEXT", "port 1716").strip(),
             activity_url=os.environ.get("ACTIVITY_URL", "").strip() or None,
+            git_sha=os.environ.get("BOT_GIT_SHA", "").strip() or "dev",
+            bot_source_repo=os.environ.get(
+                "BOT_SOURCE_REPO", "sannidhyaroy/sodutod"
+            ).strip(),
         )
