@@ -23,6 +23,7 @@
   - [Verification](#verification)
   - [GitHub Relay](#github-relay)
   - [Telemetry](#telemetry)
+  - [Profile](#profile)
   - [Housekeeping](#housekeeping)
 - [Setup](#setup)
   - [Create the Discord Application](#create-the-discord-application)
@@ -65,6 +66,12 @@
 - [x] Verbose audit trail (`TELEMETRY_LEVEL=verbose`, the default): every join, role assignment, welcome DM, and welcome-roster create/edit/delete is mirrored to the telemetry channel, so the bot's behavior can be verified without shell access
 - [x] Everything is always written to the process log (stdout) regardless of telemetry level
 
+### Profile
+- [x] Profile-as-code: the repo is the source of truth for the bot's identity — bio, avatar, and banner are enforced through the API on startup, so the Developer Portal is bootstrap-only
+- [x] The bio ([`bio.md`](bio.md)) renders as a `systemctl status` readout with the running image tag, uptime date, and a live count of the daemon's tasks (commands + listeners + loops)
+- [x] Avatar/banner pushes are hash-gated against the state volume, so the rate-limited profile endpoints are only hit when a repo asset actually changed
+- [x] Animated assets work: the API upload path preserves GIF frame timing (the portal upload path mangles it)
+
 ### Housekeeping
 - [ ] Promotion commands with an audit trail
 - [ ] Invite-based role grants (e.g. a tester invite that lands with the tester role)
@@ -104,26 +111,30 @@ Configuration is environment-based — copy the template and fill in the IDs:
 cp .env.example .env
 ```
 
-| Variable               | Required | Description                                                                                                   |
-| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------- |
-| `DISCORD_TOKEN`        | Yes      | Bot token from the Developer Portal                                                                           |
-| `GUILD_ID`             | Yes      | The server's ID                                                                                               |
-| `ROLE_UNVERIFIED_ID`   | Yes      | Role assigned on join, before verification                                                                    |
-| `ROLE_MEMBER_ID`       | Yes      | Role granted when the member agrees to the rules                                                              |
-| `CHANNEL_RULES_ID`     | Yes      | Channel hosting the rules and the Initialize button                                                           |
-| `CHANNEL_WELCOME_ID`   | Yes      | Channel for welcome messages                                                                                  |
-| `CHANNEL_RELEASES_ID`  | Yes      | Channel for release announcements                                                                             |
-| `CHANNEL_TELEMETRY_ID` | Yes      | Channel for the bot's operational telemetry                                                                   |
-| `GITHUB_REPO`          | No       | Repo to watch (default: `sannidhyaroy/Soduto`)                                                                |
-| `GITHUB_TOKEN`         | No       | Raises the API rate limit from 60/h to 5000/h — a fine-grained PAT with read-only Contents + Issues is enough |
-| `RELEASE_POLL_SECONDS` | No       | Release poll interval (default: `300`)                                                                        |
-| `STATE_DIR`            | No       | Where the bot keeps its small state files (default: `./data`)                                                 |
-| `RULES_PATH`           | No       | Markdown file posted by `/post-rules` (default: `./rules.md`)                                                 |
-| `WELCOME_MODE`         | No       | `roster` (default), `dm`, `public`, or `off`                                                                  |
-| `TELEMETRY_LEVEL`      | No       | `verbose` (default) mirrors every bot action to the telemetry channel; `normal` posts only significant events |
-| `ACTIVITY_TYPE`        | No       | Profile presence type: `playing`, `streaming`, `listening` (default), `watching`, `competing`, or `custom`    |
-| `ACTIVITY_TEXT`        | No       | Presence text (default: `port 1716` — shown as "Listening to port 1716")                                      |
-| `ACTIVITY_URL`         | No       | Only for `streaming` — a Twitch/YouTube URL, required for the purple streaming status                         |
+| Variable               | Required | Description                                                                                                       |
+| ---------------------- | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| `DISCORD_TOKEN`        | Yes      | Bot token from the Developer Portal                                                                               |
+| `GUILD_ID`             | Yes      | The server's ID                                                                                                   |
+| `ROLE_UNVERIFIED_ID`   | Yes      | Role assigned on join, before verification                                                                        |
+| `ROLE_MEMBER_ID`       | Yes      | Role granted when the member agrees to the rules                                                                  |
+| `CHANNEL_RULES_ID`     | Yes      | Channel hosting the rules and the Initialize button                                                               |
+| `CHANNEL_WELCOME_ID`   | Yes      | Channel for welcome messages                                                                                      |
+| `CHANNEL_RELEASES_ID`  | Yes      | Channel for release announcements                                                                                 |
+| `CHANNEL_TELEMETRY_ID` | Yes      | Channel for the bot's operational telemetry                                                                       |
+| `GITHUB_REPO`          | No       | Repo to watch (default: `sannidhyaroy/Soduto`)                                                                    |
+| `GITHUB_TOKEN`         | No       | Raises the API rate limit from 60/h to 5000/h — a fine-grained PAT with read-only Contents + Issues is enough     |
+| `RELEASE_POLL_SECONDS` | No       | Release poll interval (default: `300`)                                                                            |
+| `STATE_DIR`            | No       | Where the bot keeps its small state files (default: `./data`)                                                     |
+| `RULES_PATH`           | No       | Markdown file posted by `/post-rules` (default: `./rules.md`)                                                     |
+| `WELCOME_MODE`         | No       | `roster` (default), `dm`, `public`, or `off`                                                                      |
+| `TELEMETRY_LEVEL`      | No       | `verbose` (default) mirrors every bot action to the telemetry channel; `normal` posts only significant events     |
+| `ACTIVITY_TYPE`        | No       | Profile presence type: `playing`, `streaming`, `listening` (default), `watching`, `competing`, or `custom`        |
+| `ACTIVITY_TEXT`        | No       | Presence text (default: `port 1716` — shown as "Listening to port 1716")                                          |
+| `ACTIVITY_URL`         | No       | Only for `streaming` — a Twitch/YouTube URL, required for the purple streaming status                             |
+| `BIO_PATH`             | No       | Bio template rendered into the profile About Me (default: `./bio.md`; placeholders `{build}` `{since}` `{tasks}`) |
+| `PROFILE_AVATAR_PATH`  | No       | Avatar image enforced from the repo (default: `./assets/sodutod-avatar.png`; empty disables)                      |
+| `PROFILE_BANNER_PATH`  | No       | Banner image enforced from the repo (default: `./assets/sodutod banner.gif`; empty disables)                      |
+| `BOT_SOURCE_REPO`      | No       | Repo of the bot's own source, for compare links in update announcements (default: `sannidhyaroy/sodutod`)         |
 
 <details><summary>Where do I find these IDs? 👀</summary>
 
@@ -168,7 +179,7 @@ State (the welcome roster and announced releases) lives in the `bot-data` volume
 
 <details><summary>Building the image locally instead? 👀</summary>
 
-Swap `image:` for `build: .` in [`docker-compose.yml`](docker-compose.yml) and run:
+Swap `image:` for `build: .` in [`compose.yaml`](compose.yaml) and run:
 
 ```bash
 docker compose up -d --build

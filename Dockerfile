@@ -8,7 +8,8 @@ COPY pyproject.toml uv.lock .python-version ./
 RUN uv sync --frozen --no-dev
 
 COPY bot/ bot/
-COPY main.py rules.md ./
+COPY main.py rules.md bio.md ./
+COPY assets/ assets/
 
 # Baked in by CI so the bot knows which build it is running.
 ARG GIT_SHA=dev

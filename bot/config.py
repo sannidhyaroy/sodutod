@@ -76,6 +76,14 @@ class Config:
     # Repo the bot's own source lives in, for compare links between builds.
     bot_source_repo: str
 
+    # Profile-as-code: the repo owns the bot's identity, enforced through
+    # the API on startup. bio_path is a template with {build}, {since} and
+    # {tasks} placeholders; avatar/banner are image files pushed only when
+    # their content hash changes (empty path disables that asset).
+    bio_path: str
+    avatar_path: str | None
+    banner_path: str | None
+
     @classmethod
     def from_env(cls) -> "Config":
         welcome_mode = os.environ.get("WELCOME_MODE", "roster").strip().lower()
@@ -120,4 +128,13 @@ class Config:
             bot_source_repo=os.environ.get(
                 "BOT_SOURCE_REPO", "sannidhyaroy/sodutod"
             ).strip(),
+            bio_path=os.environ.get("BIO_PATH", "./bio.md").strip(),
+            avatar_path=os.environ.get(
+                "PROFILE_AVATAR_PATH", "./assets/sodutod-avatar.png"
+            ).strip()
+            or None,
+            banner_path=os.environ.get(
+                "PROFILE_BANNER_PATH", "./assets/sodutod banner.gif"
+            ).strip()
+            or None,
         )
