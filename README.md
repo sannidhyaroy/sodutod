@@ -5,11 +5,10 @@
   a soduto daemon · pid 1 of soduto labs
   </p>
   <div style="margin-bottom: 1em">
-  <a href="https://github.com/sannidhyaroy/sodutod/blob/main/LICENSE"><img src="https://img.shields.io/github/license/sannidhyaroy/sodutod.svg?color=B0BB88&style=flat-square" alt="AGPL Licensed"></a>
-  <a href="https://github.com/sannidhyaroy/sodutod/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/sannidhyaroy/sodutod?color=B0BB88&style=flat-square"></a>
-  <a href="https://github.com/sannidhyaroy/sodutod/commits/main"><img src="https://img.shields.io/github/last-commit/sannidhyaroy/sodutod/main?color=B0BB88&style=flat-square" alt="Last Commit"></a>
-  <a href="https://github.com/sannidhyaroy/sodutod/actions/workflows/docker.yml"><img alt="Docker Build" src="https://img.shields.io/github/actions/workflow/status/sannidhyaroy/sodutod/docker.yml?branch=main&color=B0BB88&style=flat-square&label=docker"></a>
-  <a href="https://discord.gg/CEWxVVNHAe"><img alt="Soduto Labs Discord" src="https://img.shields.io/badge/discord-soduto%20labs-B0BB88?style=flat-square&logo=discord&logoColor=white"></a>
+  <a href="https://github.com/sannidhyaroy/sodutod/blob/main/LICENSE"><img alt="AGPL Licensed" src="https://img.shields.io/github/license/sannidhyaroy/sodutod?style=flat-square&logo=spdx&logoColor=white&color=B0BB88"></a>
+  <a href="https://github.com/sannidhyaroy/sodutod/commits/main"><img alt="Last Commit" src="https://img.shields.io/github/last-commit/sannidhyaroy/sodutod?style=flat-square&logo=sourcetree&logoColor=white&color=B0BB88"></a>
+  <a href="https://github.com/sannidhyaroy/sodutod/actions/workflows/docker.yml"><img alt="Docker Automated Build Status" src="https://img.shields.io/github/actions/workflow/status/sannidhyaroy/sodutod/docker.yml?style=flat-square&logo=docker&logoColor=white&label=docker%20build&color=B0BB88"></a>
+  <a href="https://discord.gg/CEWxVVNHAe"><img alt="Soduto Labs Discord Server" src="https://img.shields.io/discord/1475760167197868123?style=flat-square&logo=discord&logoColor=white&label=Soduto%20Labs&color=B0BB88"></a>
   </div>
   <p>
   sodutod is the house bot of <a href="https://discord.gg/CEWxVVNHAe"><b>Soduto Labs</b></a>, the community server for <a href="https://github.com/sannidhyaroy/Soduto">Soduto</a> — a KDE Connect compatible application for macOS. It onboards new members, runs the verification gate that unlocks the server, and relays GitHub activity into Discord.
