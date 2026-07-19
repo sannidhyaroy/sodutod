@@ -4,6 +4,16 @@ on:
   push:
     branches: [main]
     tags: ["v*"]
+    # Skip builds for files that never end up in the image. Everything the
+    # Dockerfile COPYs (bot/, assets/, bio.md, rules.md, main.py) and the
+    # build inputs (pyproject.toml, uv.lock, .python-version, Dockerfile)
+    # must keep triggering builds.
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
+      - ".gitignore"
+      - ".env.example"
+      - "compose.yaml"
   workflow_dispatch:
 
 concurrency:
